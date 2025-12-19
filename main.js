@@ -1,53 +1,31 @@
+cat <<EOF > main.js
 import { getWeather } from './services/weather.js';
 import { getTime } from './services/time.js';
 import { getCountry } from './services/country.js';
 
 async function loadDashboard() {
-    // 1. HAVA DURUMU (Open-Meteo)
+    console.log("Dashboard yükleniyor...");
+    
+    // Hava Durumu
     try {
         const weather = await getWeather(41.01, 28.97);
-        const weatherCard = document.getElementById('weather-card');
-        const temp = weather.current_weather.temperature;
-        const wind = weather.current_weather.windspeed;
+        document.getElementById('weather-card').innerHTML = "<h3>☀️ Hava</h3><p>" + weather.current_weather.temperature + "°C</p>";
+    } catch (e) { document.getElementById('weather-card').innerHTML = "Hava Hatası"; }
 
-        weatherCard.innerHTML = `
-            <h3>☀️ Hava Durumu</h3>
-            <p>Sıcaklık: ${temp}°C</p>
-            <p>Rüzgar: ${wind} km/h</p>
-        `;
-        weatherCard.classList.add(wind > 20 ? 'weather-wind' : 'weather-sunny');
-    } catch (error) {
-        document.getElementById('weather-card').innerHTML = "<h3>☀️ Hava Durumu</h3><p>Yüklenemedi</p>";
-        console.error("Hava durumu hatası:", error);
-    }
-
-    // 2. ZAMAN BİLGİSİ (TimeAPI)
+    // Zaman
     try {
-        const time = await getTime('Europe/Istanbul');
-        // Yeni API'den gelen format: "10:05" veya "2025-12-19T10:05:46"
-        document.getElementById('time-card').innerHTML = `
-            <h3>🕒 Yerel Saat</h3>
-            <p style="font-size: 1.5rem; font-weight: bold;">${time.time}</p>
-            <p>${time.timeZone}</p>
-        `;
-    } catch (error) {
-        document.getElementById('time-card').innerHTML = "<h3>🕒 Yerel Saat</h3><p>Servis Çevrimdışı</p>";
-        console.error("Zaman hatası:", error);
-    }
+        const timeData = await getTime('Europe/Istanbul');
+        const displayTime = timeData.datetime ? timeData.datetime.substring(11, 16) : "Hata";
+        document.getElementById('time-card').innerHTML = "<h3>🕒 Saat</h3><p style='font-size:1.5rem'>" + displayTime + "</p>";
+    } catch (e) { document.getElementById('time-card').innerHTML = "Saat Hatası"; }
 
-    // 3. ÜLKE BİLGİSİ (Rest Countries)
+    // Ülke
     try {
         const country = await getCountry('TR');
-        document.getElementById('country-card').innerHTML = `
-            <h3>🏳️ Ülke Bilgisi</h3>
-            <img src="${country[0].flags.png}" width="80" style="border-radius: 5px;" />
-            <p>${country[0].name.common}</p>
-            <p>Para Birimi: ${Object.keys(country[0].currencies)[0]}</p>
-        `;
-    } catch (error) {
-        document.getElementById('country-card').innerHTML = "<h3>🏳️ Ülke Bilgisi</h3><p>Yüklenemedi</p>";
-        console.error("Ülke hatası:", error);
-    }
+        document.getElementById('country-card').innerHTML = "<h3>🏳️ Ülke</h3><img src='" + country[0].flags.png + "' width='60' />";
+    } catch (e) { document.getElementById('country-card').innerHTML = "Ülke Hatası"; }
 }
 
-loadDashboard();
+// Sayfa tamamen yüklendiğinde çalıştır
+window.addEventListener('DOMContentLoaded', loadDashboard);
+EOF
