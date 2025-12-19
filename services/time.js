@@ -1,4 +1,5 @@
 export async function getTime(timezone) {
-const res = await fetch(`https://worldtimeapi.org/api/timezone/${timezone}`);
-return await res.json();
+    // WorldTimeAPI yerine TimeAPI.io kullanıyoruz
+    const res = await fetch(`https://www.timeapi.io/api/Time/current/zone?timeZone=${timezone}`);
+    return await res.json();
 }
